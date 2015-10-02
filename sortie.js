@@ -37,6 +37,10 @@ function Sortie(el, options) {
         return str.split('').reverse().join('');
     }
 
+   /**
+    * Parse a date from a format
+    * e.g. parseDate('1990-07-26 07:24', 'yyyy-mm-ss hh:ii')
+    */
     function parseDate(str, format) {
         var parts = {};
         if (typeof format === 'undefined') format = 'yyyy-mm-dd';
@@ -51,6 +55,13 @@ function Sortie(el, options) {
             parts.ii || 0,
             parts.ss || 0
         );
+    }
+
+   /**
+    * Get the text content of a node
+    */
+    function textContent(node) {
+        return node.textContent || $(node).text();
     }
 
    /**
@@ -71,7 +82,13 @@ function Sortie(el, options) {
         }
 
         // Add aria role-live settings and
-        $table.attr('aria-live', 'assertive');
+        $table.attr({
+            'aria-atomic': true,
+            'aria-live': 'polite',
+            'aria-relevant': 'all'
+        });
+
+        // Generate an ID for the table
         if (!$table.attr('id')) {
             $table.attr('id', 'sortieTable' + ((new Date())*1));
         }
@@ -152,6 +169,7 @@ function Sortie(el, options) {
         // Update the other buttons
         $headers.not($th).each(function(index, el) {
             var $el = $(el);
+            $el.removeAttr('aria-sort');
             if ($el.data('sortie')) {
                 $el.data('sortieButton').html(options.markers.unsorted);
             }
@@ -192,8 +210,8 @@ function Sortie(el, options) {
 
     // Compare alphanumerically
     function compareAlpha(cellA, cellB) {
-        var ah = cellA.innerText.trim();
-        var bh = cellB.innerText.trim();
+        var ah = textContent(cellA).trim();
+        var bh = textContent(cellB).trim();
         if (cellA.dir === 'rtl') ah = strReverse(ah);
         if (cellB.dir === 'rtl') bh = strReverse(bh);
         return ah.localeCompare(bh);
@@ -201,10 +219,9 @@ function Sortie(el, options) {
 
     // Compare dates
     function compareDate(cellA, cellB, sortSpec) {
-        var dateA = parseDate(cellA.innerText, 'dd/mm/yyyy');
-        var dateB = parseDate(cellA.innerText, 'dd/mm/yyyy');
-
-        console.log(dateA, dateB, dateA > dateB);
+        var dateFormat = sortSpec.substr(2);
+        var dateA = parseDate(textContent(cellA), dateFormat);
+        var dateB = parseDate(textContent(cellB), dateFormat);
 
         if (dateA > dateB) {
             return 1;
@@ -226,8 +243,8 @@ function Sortie(el, options) {
 
     // Compare integers
     function compareInt(cellA, cellB) {
-        var aInt = parseInt(cellA.innerText, 10);
-        var bInt = parseInt(cellB.innerText, 10);
+        var aInt = parseInt(textContent(cellA), 10);
+        var bInt = parseInt(textContent(cellB), 10);
         if (isNaN(bInt)) {
             return isNaN(aInt) ? 0 : 1;
         } else if (isNaN(aInt)) {
