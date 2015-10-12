@@ -1,7 +1,7 @@
 function Sortie(el, options) {
     "use strict";
     var defaults = {
-        initialSort: 0,
+        initialsort: -1,
         markers: {
             asc: '&#8595;',
             desc: '&#8593;',
@@ -24,7 +24,8 @@ function Sortie(el, options) {
         var dataOptions = {};
         for (var key in dataAttr) {
             if (key.substr(0,6) === 'sortie' && key.length > 6) {
-                dataOptions[key.substr(6, 1).toLowerCase() + key.substr(7)] = dataAttr[key];
+                var normkey = key.toLowerCase().replace(/-/g, '');
+                dataOptions[normkey.substr(6)] = dataAttr[key];
             }
         }
         return $.extend(true, {}, defaults, options, dataOptions);
@@ -113,15 +114,22 @@ function Sortie(el, options) {
         }
 
         // Perform an initial sort
-        if (options.initialSort !== false) {
+        if (options.initialsort !== false) {
             var opts = {};
-            if (options.initialSort.toString().substr(-1,1) === 'D') {
+            if (options.initialsort.toString().substr(-1,1) === 'D') {
                 opts.dir = 'DESC';
-            } else if(options.initialSort.toString().substr(-1,1) === 'A') {
+            } else if(options.initialsort.toString().substr(-1,1) === 'A') {
                 opts.dir = 'ASC';
+            } else if(options.initialsort.toString() === '-1') {
+                for (var i = 0, l = sorts.length; i < l; i++) {
+                    if (sorts[i]) {
+                        options.initialsort = i;
+                        break;
+                    }
+                }
             }
 
-            sort(options.initialSort, opts);
+            sort(options.initialsort, opts);
         }
     }
 
@@ -142,7 +150,7 @@ function Sortie(el, options) {
         var opts = $.extend({}, opts);
         var $th = $headers.eq(col);
         var $btn = $th.data('sortieButton');
-        var rows = $body.find('tr').get();
+        var rows = Array.prototype.slice.call($body.find('tr').get(), 0);
         var dir = typeof opts.dir !== 'undefined' ? opts.dir : 'ASC';
 
         // Get the sort order
@@ -176,9 +184,16 @@ function Sortie(el, options) {
         });
 
         // Update the content of the now-sorted table
+        var frag = document.createDocumentFragment();
+        var tbody = $body.get(0);
+
         for (var i in rows) {
-            $body.append(rows[i]);
+            frag.appendChild(rows[i]);
         }
+
+        // Put the now sorted rows back onto the page
+        tbody.innerHTML = '';
+        tbody.appendChild(frag);
 
         $table.trigger('sortie:sorted');
     }
