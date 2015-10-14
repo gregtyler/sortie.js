@@ -1,5 +1,10 @@
+/*!
+ * Sortie.js
+ * An inoffensive table sorter for developers
+ */
 function Sortie(el, options) {
-    "use strict";
+    'use strict';
+
     var defaults = {
         initialsort: -1,
         markers: {
@@ -23,11 +28,12 @@ function Sortie(el, options) {
         var dataAttr = $table.data();
         var dataOptions = {};
         for (var key in dataAttr) {
-            if (key.substr(0,6) === 'sortie' && key.length > 6) {
+            if (key.substr(0, 6) === 'sortie' && key.length > 6) {
                 var normkey = key.toLowerCase().replace(/-/g, '');
                 dataOptions[normkey.substr(6)] = dataAttr[key];
             }
         }
+
         return $.extend(true, {}, defaults, options, dataOptions);
     }
 
@@ -48,6 +54,7 @@ function Sortie(el, options) {
         format.replace(/(dd|mm|yyyy|hh|ii)/g, function(match, type, start) {
             parts[type] = str.substr(start, type.length);
         });
+
         return new Date(
             parts.yyyy || 0,
             (parts.mm - 1) || 0,
@@ -91,7 +98,7 @@ function Sortie(el, options) {
 
         // Generate an ID for the table
         if (!$table.attr('id')) {
-            $table.attr('id', 'sortieTable' + ((new Date())*1));
+            $table.attr('id', 'sortieTable' + (new Date() * 1));
         }
 
         // Add sortie specification to each column
@@ -116,11 +123,11 @@ function Sortie(el, options) {
         // Perform an initial sort
         if (options.initialsort !== false) {
             var opts = {};
-            if (options.initialsort.toString().substr(-1,1) === 'D') {
+            if (options.initialsort.toString().substr(-1, 1) === 'D') {
                 opts.dir = 'DESC';
-            } else if(options.initialsort.toString().substr(-1,1) === 'A') {
+            } else if (options.initialsort.toString().substr(-1, 1) === 'A') {
                 opts.dir = 'ASC';
-            } else if(options.initialsort.toString() === '-1') {
+            } else if (options.initialsort.toString() === '-1') {
                 for (var i = 0, l = sorts.length; i < l; i++) {
                     if (sorts[i]) {
                         options.initialsort = i;
@@ -204,11 +211,11 @@ function Sortie(el, options) {
     function compareFactory(col, sortSpec) {
         var callback = function() {return 0};
 
-        if (sortSpec.substr(0,1) === 'a') {
+        if (sortSpec.substr(0, 1) === 'a') {
             callback = compareAlpha;
-        } else if(sortSpec.substr(0,1) === 'd') {
+        } else if (sortSpec.substr(0, 1) === 'd') {
             callback = compareDate;
-        } else if(sortSpec.substr(0,1) === 'i') {
+        } else if (sortSpec.substr(0, 1) === 'i') {
             callback = compareInt;
         }
 
@@ -240,7 +247,7 @@ function Sortie(el, options) {
 
         if (dateA > dateB) {
             return 1;
-        } else if(dateB < dateA) {
+        } else if (dateB < dateA) {
             return -1;
         } else {
             return 0;
@@ -275,7 +282,7 @@ function Sortie(el, options) {
 
 // Attach sortie to jQuery
 $.fn.sortie = function(options) {
-    $(this).each(function(){
+    $(this).each(function() {
         Sortie(this, options);
     }
 )};
