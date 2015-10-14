@@ -1,5 +1,5 @@
 /*!
- * Sortie.js
+ * Sortie.js v<<VERSION>>
  * An inoffensive table sorter for developers
  */
 function Sortie(el, options) {
