@@ -3,10 +3,16 @@
 <head>
   <title>Sortie</title>
   <meta charset="utf-8" />
+  <style>
+    body { font-family: sans-serif; }
+    table { border-collapse: collapse; }
+    th, td { padding: 8px; border-bottom: 1px solid #CCC; }
+    tr:nth-child(2n+1) td { background-color: #EEE; }
+  </style>
 </head>
 <body>
   <h1>Sortie example</h1>
-  <table data-sortie="a,i,d:dd/mm/yyyy,a,a">
+  <table data-sortie="a|i|d:dd/mm/yyyy|a|a|data:data-country">
     <caption>
       An example table to demonstrate the features of Sortie
     </caption>
@@ -17,6 +23,7 @@
         <th>Date of registration</th>
         <th>Email</th>
         <th>Right-to-left text</th>
+        <th>City of residence
       </tr>
     </thead>
     <tbody>
@@ -26,6 +33,7 @@
         <td>03/03/2015</td>
         <td><a href="mailto:nunc.Quisque@nequevitae.co.uk">nunc.Quisque@nequevitae.spoof</a></td>
         <td dir="rtl">namerif
+        <td data-country="UK,Bristol">Bristol, UK
       </tr>
       <tr>
         <td>Leilani</td>
@@ -33,6 +41,7 @@
         <td>26/08/2015</td>
         <td><a href="mailto:orci@metus.spoof">orci@metus.spoof</a></td>
         <td dir="rtl">ekorts
+        <td data-country="ES,Barcelona">Barcelona, ES
       </tr>
       <tr>
         <td>Regina</td>
@@ -40,6 +49,7 @@
         <td>20/02/2016</td>
         <td><a href="mailto:varius.Nam@convallisligula.spoof">varius.Nam@convallisligula.spoof</a></td>
         <td dir="rtl">ecniuq
+        <td data-country="UK,Greenwich">Greenwich, UK
       </tr>
       <tr>
         <td>Dustin</td>
@@ -47,6 +57,7 @@
         <td>03/05/2015</td>
         <td><a href="mailto:semper@penatibuset.poof">semper@penatibuset.spoof</a></td>
         <td dir="rtl">dehsuh
+        <td data-country="US,New York">New York, USA
       </tr>
       <tr>
         <td>Ross</td>
@@ -54,13 +65,29 @@
         <td>26/06/2016</td>
         <td><a href="mailto:mi@volutpat.spoof">mi@volutpat.spoof</a></td>
         <td dir="rtl">rits
+        <td data-country="UK,Edinburgh">Edinburgh, UK
       </tr>
     </tbody>
   </table>
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="../sortie.js"></script>
+  <script src="../build/sortie.min.js"></script>
   <script>
-    $('table').sortie();
+    // Add a new sorting function
+    Sortie.registerComparison(['data'], function(cellA, cellB, args) {
+      var ad = cellA.getAttribute(args[0]) || '';
+      var bd = cellB.getAttribute(args[0]) || '';
+      return ad.localeCompare(bd);
+    });
+
+    // Either create it with natively
+    Sortie.create(document.querySelector('table'), {
+      initialsort: 2
+    });
+
+    // Or use jQuery
+    $('table').sortie({
+      initialsort: 2
+    });
   </script>
 </body>
 </html>
