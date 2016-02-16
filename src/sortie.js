@@ -113,7 +113,10 @@ window.Sortie = (function SortieConstructor() {
 
                 // Add a sorting icon to click
                 var $button = $('<button />').css({backgroundColor: 'transparent', border: 'none'}).html(options.markers.unsorted);
-                $button.attr('aria-controls', $table.attr('id'));
+                $button.attr({
+                   type: 'button',
+                   'aria-controls': $table.attr('id')
+                });
                 $headers.eq(col)
                     .css({whiteSpace:'nowrap', cursor:'pointer'})
                     .click(sortFactory(col))

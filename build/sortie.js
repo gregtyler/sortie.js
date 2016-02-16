@@ -1,5 +1,5 @@
 /*!
- * Sortie.js v0.1.0
+ * Sortie.js v0.2.0
  * An inoffensive table sorter for developers
  */
 window.Sortie = (function SortieConstructor() {
@@ -113,7 +113,10 @@ window.Sortie = (function SortieConstructor() {
 
                 // Add a sorting icon to click
                 var $button = $('<button />').css({backgroundColor: 'transparent', border: 'none'}).html(options.markers.unsorted);
-                $button.attr('aria-controls', $table.attr('id'));
+                $button.attr({
+                   type: 'button',
+                   'aria-controls': $table.attr('id')
+                });
                 $headers.eq(col)
                     .css({whiteSpace:'nowrap', cursor:'pointer'})
                     .click(sortFactory(col))
@@ -216,7 +219,7 @@ window.Sortie = (function SortieConstructor() {
         function compareFactory(col, sortSpec) {
             var bits = sortSpec.split(':');
             var operation = bits[0];
-            var arguments = bits[1] ? bits[1].split(',') : [];
+            var args = bits[1] ? bits[1].split(',') : [];
             var callback = compareFunctions[operation];
 
             if (typeof callback !== 'function') {
@@ -228,7 +231,7 @@ window.Sortie = (function SortieConstructor() {
                 var cellA = a.children[col];
                 var cellB = b.children[col];
 
-                var order = callback.call(window, cellA, cellB, arguments);
+                var order = callback.call(window, cellA, cellB, args);
 
                 // If asked to, reverse the search order
                 return sortSpec.substr(1, 1) === 'r' ? -order : order;
@@ -305,7 +308,7 @@ window.Sortie = (function SortieConstructor() {
 })();
 
 // Attach sortie to jQuery
-$.fn.sortie = function(options) {
+jQuery.fn.sortie = function(options) {
     var args = Array.prototype.slice.apply(arguments);
 
     return $(this).each(function() {
