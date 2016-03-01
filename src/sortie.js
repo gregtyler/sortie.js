@@ -2,7 +2,19 @@
  * Sortie.js v<<VERSION>>
  * An inoffensive table sorter for developers
  */
-window.Sortie = (function SortieConstructor() {
+(function(root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but only CommonJS-like
+        // environments that support module.exports, like Node.
+        module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.Sortie = factory();
+    }
+}(this, function SortieConstructor() { // jscs:ignore requirePaddingNewLinesAfterBlocks
     'use strict';
 
    /**
@@ -305,20 +317,4 @@ window.Sortie = (function SortieConstructor() {
         registerComparison: registerComparison,
         create: create
     };
-})();
-
-// Attach sortie to jQuery
-jQuery.fn.sortie = function(options) {
-    var args = Array.prototype.slice.apply(arguments);
-
-    return $(this).each(function() {
-        if (typeof options === 'string') {
-            var command = options;
-            $(this).data('mySortieInstance')[command](args.slice(1));
-        } else {
-            if (!$(this).data('mySortieInstance')) {
-                Sortie.create(this, options);
-            }
-        }
-    });
-}
+}));
