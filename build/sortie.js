@@ -17,7 +17,7 @@
 }(this, function SortieConstructor() { // jscs:ignore requirePaddingNewLinesAfterBlocks
     'use strict';
 
-   /**
+    /**
     * Variable definitions
     */
     var defaults = {
@@ -31,14 +31,14 @@
 
     var compareFunctions = {};
 
-   /**
+    /**
     * Reverse a string
     */
     function strReverse(str) {
         return str.split('').reverse().join('');
     }
 
-   /**
+    /**
     * Parse a date from a format
     * e.g. parseDate('1990-07-26 07:24', 'yyyy-mm-ss hh:ii')
     */
@@ -59,7 +59,7 @@
         );
     }
 
-   /**
+    /**
     * Get the text content of a node
     */
     function textContent(node) {
@@ -73,7 +73,7 @@
         var $headers = $table.find('thead th');
         var current;
 
-       /**
+        /**
         * Get the options object
         */
         function getOptions() {
@@ -89,7 +89,7 @@
             return $.extend(true, {}, defaults, options, dataOptions);
         }
 
-       /**
+        /**
         * Initialise sortie
         */
         function init() {
@@ -167,7 +167,7 @@
             }
         }
 
-       /**
+        /**
         * Sort the table by the given column
         */
         function sort(col, opts) {
@@ -225,7 +225,7 @@
             $table.trigger('sortie:sorted');
         }
 
-       /**
+        /**
         * Return the suitable comparison function for the column
         */
         function compareFactory(col, sortSpec) {
@@ -313,7 +313,26 @@
         }
     });
 
+    function attachTojQuery(jQuery) {
+        jQuery.fn.sortie = function(options) {
+            var args = Array.prototype.slice.apply(arguments);
+
+            return $(this).each(function() {
+                if (typeof options === 'string') {
+                    var command = options;
+                    $(this).data('mySortieInstance')[command](args.slice(1));
+                } else {
+                    if (!$(this).data('mySortieInstance')) {
+                        var Sortie = new SortieConstructor();
+                        Sortie.create(this, options);
+                    }
+                }
+            });
+        }
+    }
+
     return {
+        attachTojQuery: attachTojQuery,
         registerComparison: registerComparison,
         create: create
     };

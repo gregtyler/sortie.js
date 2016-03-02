@@ -17,9 +17,9 @@
 }(this, function SortieConstructor() { // jscs:ignore requirePaddingNewLinesAfterBlocks
     'use strict';
 
-   /**
-    * Variable definitions
-    */
+    /**
+     * Variable definitions
+     */
     var defaults = {
         initialsort: -1,
         markers: {
@@ -31,17 +31,17 @@
 
     var compareFunctions = {};
 
-   /**
-    * Reverse a string
-    */
+    /**
+     * Reverse a string
+     */
     function strReverse(str) {
         return str.split('').reverse().join('');
     }
 
-   /**
-    * Parse a date from a format
-    * e.g. parseDate('1990-07-26 07:24', 'yyyy-mm-ss hh:ii')
-    */
+    /**
+     * Parse a date from a format
+     * e.g. parseDate('1990-07-26 07:24', 'yyyy-mm-ss hh:ii')
+     */
     function parseDate(str, format) {
         var parts = {};
         if (typeof format === 'undefined') format = 'yyyy-mm-dd';
@@ -59,9 +59,9 @@
         );
     }
 
-   /**
-    * Get the text content of a node
-    */
+    /**
+     * Get the text content of a node
+     */
     function textContent(node) {
         return node.textContent || $(node).text();
     }
@@ -73,7 +73,7 @@
         var $headers = $table.find('thead th');
         var current;
 
-       /**
+        /**
         * Get the options object
         */
         function getOptions() {
@@ -89,9 +89,9 @@
             return $.extend(true, {}, defaults, options, dataOptions);
         }
 
-       /**
-        * Initialise sortie
-        */
+        /**
+         * Initialise sortie
+         */
         function init() {
             // Set the options object
             options = getOptions();
@@ -167,9 +167,9 @@
             }
         }
 
-       /**
-        * Sort the table by the given column
-        */
+        /**
+         * Sort the table by the given column
+         */
         function sort(col, opts) {
             // Convert col to an integer
             col = parseInt(col, 10);
@@ -225,9 +225,9 @@
             $table.trigger('sortie:sorted');
         }
 
-       /**
-        * Return the suitable comparison function for the column
-        */
+        /**
+         * Return the suitable comparison function for the column
+         */
         function compareFactory(col, sortSpec) {
             var bits = sortSpec.split(':');
             var operation = bits[0];
@@ -313,7 +313,44 @@
         }
     });
 
+    /**
+     * Attach functionality to the supplied jQuery object
+     */
+    function attachTojQuery(jQuery, method) {
+        // Default object to global jQuery
+        if (typeof jQuery === 'undefined') jQuery = window.jQuery;
+        // Default method to "sortie"
+        if (typeof method === 'undefined') method = 'sortie';
+
+        // Not valid jQuery object
+        if (typeof jQuery !== 'function' || typeof $().jquery !== 'string') {
+            console.error('Invalid jQuery object supplied');
+            return false;
+        }
+
+        // Add sortie to jQuery under the specified method
+        jQuery.fn[method] = function(options) {
+            var args = Array.prototype.slice.apply(arguments);
+
+            return $(this).each(function() {
+                if (typeof options === 'string') {
+                    var command = options;
+                    $(this).data('mySortieInstance')[command](args.slice(1));
+                } else {
+                    if (!$(this).data('mySortieInstance')) {
+                        var Sortie = new SortieConstructor();
+                        Sortie.create(this, options);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Return public methods
+     */
     return {
+        attachTojQuery: attachTojQuery,
         registerComparison: registerComparison,
         create: create
     };
