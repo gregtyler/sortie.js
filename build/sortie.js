@@ -31,6 +31,51 @@
 
     var compareFunctions = {};
 
+    // Local storage of jQuery object
+    var jQuery = null;
+
+    // A little internal data tracker
+    var _data = (function() {
+        var data = [];
+
+        function getIndex($obj) {
+            for (var index = 0, l = data.length; index < l; index++) {
+                if (data[index].__obj === $obj) {
+                    return index;
+                }
+            }
+
+            // Otherwise, create the item
+            data.push({__obj: $obj});
+            return data.length - 1;
+        }
+
+        function get($obj, key) {
+            var index = getIndex($obj);
+
+            if (data[index] && data[index][key]) {
+                return data[index][key];
+            } else {
+                return null;
+            }
+        }
+
+        function set($obj, key, val) {
+            var index = getIndex($obj);
+
+            if (typeof data[index] === 'undefined') {
+                data[index] = {};
+            }
+
+            data[index][key] = val;
+        }
+
+        return {
+            get: get,
+            set: set
+        }
+    })();
+
     /**
      * Reverse a string
      */
@@ -66,23 +111,24 @@
         return node.textContent || $(node).text();
     }
 
-    function SortieInstance(el, options) {
+    function SortieInstance($table, options) {
         // Get the variables we'll be using in this sortie object
-        var $table = $(el);
-        var $body = $table.find('tbody').eq(0);
-        var $headers = $table.find('thead th');
+        var $body = $table.querySelector('tbody');
+        var $headers = $table.querySelectorAll('thead th');
         var current;
 
         /**
         * Get the options object
         */
         function getOptions() {
-            var dataAttr = $table.data();
+            var dataAttr = $table.attributes;
             var dataOptions = {};
-            for (var key in dataAttr) {
-                if (key.substr(0, 6) === 'sortie' && key.length > 6) {
-                    var normkey = key.toLowerCase().replace(/-/g, '');
-                    dataOptions[normkey.substr(6)] = dataAttr[key];
+            for (var i = 0, l = dataAttr.length; i < l; i++) {
+                var attr = dataAttr[i];
+
+                if (attr.name.substr(0, 11) === 'data-sortie' && attr.name.length > 11) {
+                    var normkey = attr.name.toLowerCase().replace(/-/g, '');
+                    dataOptions[normkey.substr(11)] = attr.value;
                 }
             }
 
@@ -97,8 +143,18 @@
             options = getOptions();
 
             // Determine the sort order
-            var sorts = options.sort || $table.attr('data-sortie');
-            if (!typeof sorts !== 'object') {
+            var sorts;
+            if (typeof options.sort !== 'undefined') {
+                sorts = options.sort;
+            } else {
+                sorts = $table.getAttribute('data-sortie');
+            }
+
+            // If there's no suitable sorting string, drop out
+            if (sorts === null) return false;
+
+            // If the sorts were a string, turn them into an object
+            if (typeof sorts === 'string') {
                 sorts = sorts.split('|');
             }
 
@@ -107,15 +163,13 @@
             }
 
             // Add aria role-live settings and
-            $table.attr({
-                'aria-atomic': true,
-                'aria-live': 'polite',
-                'aria-relevant': 'all'
-            });
+            $table.setAttribute('aria-atomic', true);
+            $table.setAttribute('aria-live', 'polite');
+            $table.setAttribute('aria-relevant', 'all');
 
             // Generate an ID for the table
-            if (!$table.attr('id')) {
-                $table.attr('id', 'sortieTable' + (new Date() * 1));
+            if (!$table.getAttribute('id')) {
+                $table.setAttribute('id', 'sortieTable' + (new Date() * 1));
             }
 
             // Add sortie specification to each column
@@ -124,20 +178,23 @@
                 if (!sorts[col]) continue;
 
                 // Add a sorting icon to click
-                var $button = $('<button />').css({backgroundColor: 'transparent', border: 'none'}).html(options.markers.unsorted);
-                $button.attr({
-                   type: 'button',
-                   'aria-controls': $table.attr('id')
-                });
-                $headers.eq(col)
-                    .css({whiteSpace:'nowrap', cursor:'pointer'})
-                    .click(sortFactory(col))
-                    .data({
-                        sortie: true,
-                        sortieCompareFunction: compareFactory(col, sorts[col]),
-                        sortieButton: $button
-                    })
-                    .append(' ', $button);
+                var $button = document.createElement('button');
+                $button.style.backgroundColor = 'transparent';
+                $button.style.border = 'none';
+                $button.innerHTML = options.markers.unsorted;
+                $button.setAttribute('type', 'button');
+                $button.setAttribute('aria-controls', $table.getAttribute('id'));
+
+                var $header = $headers[col];
+                $header.style.whiteSpace = 'nowrap';
+                $header.style.cursor = 'pointer';
+                $header.addEventListener('click', sortFactory(col));
+                $header.setAttribute('data-sortie', true);
+                _data.set($header, 'sortieCompareFunction', compareFactory(col, sorts[col]));
+                //$header.setAttribute('data-sortieButton', $button);
+                _data.set($header, 'sortieButton', $button);
+                $header.appendChild(document.createTextNode(' '));
+                $header.appendChild($button);
             }
 
             // Perform an initial sort
@@ -175,54 +232,57 @@
             col = parseInt(col, 10);
 
             var opts = $.extend({}, opts);
-            var $th = $headers.eq(col);
-            var $btn = $th.data('sortieButton');
-            var rows = Array.prototype.slice.call($body.find('tr').get(), 0);
+            var $th = $headers[col];
+            //var $btn = $th.getAttribute('data-sortieButton');
+            var $btn = _data.get($th, 'sortieButton');
+            var rows = Array.prototype.slice.call($body.querySelectorAll('tr'), 0);
             var dir = typeof opts.dir !== 'undefined' ? opts.dir : 'ASC';
 
             // Get the sort order
-            if (current === col && $th.data('sortieDirection') === 'ASC' && typeof opts.dir == 'undefined') {
+            if (current === col && _data.get($th, 'sortieDirection') === 'ASC' && typeof opts.dir == 'undefined') {
                 dir = 'DESC';
             }
 
             // Save the new state
             current = col;
-            $th.data('sortieDirection', dir);
-            $th.attr('aria-sort', dir.toLowerCase() + 'ending')
+            _data.set($th, 'sortieDirection', dir);
+            $th.setAttribute('aria-sort', dir.toLowerCase() + 'ending')
 
             // Perform the sort
-            rows.sort($th.data('sortieCompareFunction'));
+            rows.sort(_data.get($th, 'sortieCompareFunction'));
 
             // Update the button's HTML
             if (dir === 'DESC') {
-                $btn.html(options.markers.desc);
+                $btn.innerHTML = options.markers.desc;
                 rows = rows.reverse();
             } else {
-                $btn.html(options.markers.asc);
+                $btn.innerHTML = options.markers.asc;
             }
 
             // Update the other buttons
-            $headers.not($th).each(function(index, el) {
-                var $el = $(el);
-                $el.removeAttr('aria-sort');
-                if ($el.data('sortie')) {
-                    $el.data('sortieButton').html(options.markers.unsorted);
+            //$headers.not($th).each(function(index, el) {
+            for (var i = 0, l = $headers.length; i < l; i++) {
+                var $el = $headers[i];
+                // Only update "other" buttons
+                if ($el === $th) continue;
+
+                // Reset each button
+                $el.removeAttribute('aria-sort');
+                if ($el.getAttribute('data-sortie')) {
+                    _data.get($el, 'sortieButton').innerHTML = options.markers.unsorted;
                 }
-            });
+            }
 
             // Update the content of the now-sorted table
             var frag = document.createDocumentFragment();
-            var tbody = $body.get(0);
 
             for (var i in rows) {
                 frag.appendChild(rows[i]);
             }
 
             // Put the now sorted rows back onto the page
-            tbody.innerHTML = '';
-            tbody.appendChild(frag);
-
-            $table.trigger('sortie:sorted');
+            $body.innerHTML = '';
+            $body.appendChild(frag);
         }
 
         /**
@@ -255,7 +315,10 @@
 
         // Return values
         var obj = { sort: sort };
-        $table.data('mySortieInstance', obj);
+        if (jQuery !== null) {
+            jQuery($table).data('mySortieInstance', obj);
+        }
+
         return obj;
     }
 
@@ -316,20 +379,23 @@
     /**
      * Attach functionality to the supplied jQuery object
      */
-    function attachTojQuery(jQuery, method) {
+    function attachTojQuery(jq, method) {
         // Default object to global jQuery
-        if (typeof jQuery === 'undefined') jQuery = window.jQuery;
+        if (typeof jq === 'undefined') jq = window.jQuery;
         // Default method to "sortie"
         if (typeof method === 'undefined') method = 'sortie';
 
         // Not valid jQuery object
-        if (typeof jQuery !== 'function' || typeof $().jquery !== 'string') {
+        if (typeof jq !== 'function' || typeof $().jquery !== 'string') {
             console.error('Invalid jQuery object supplied');
             return false;
         }
 
+        // Scope jQuery to module
+        jQuery = jq;
+
         // Add sortie to jQuery under the specified method
-        jQuery.fn[method] = function(options) {
+        jq.fn[method] = function(options) {
             var args = Array.prototype.slice.apply(arguments);
 
             return $(this).each(function() {
