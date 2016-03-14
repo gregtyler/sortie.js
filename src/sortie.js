@@ -31,8 +31,22 @@
 
     var compareFunctions = {};
 
-    // Local storage of jQuery object
-    var jQuery = null;
+    // A polyfill for textContent
+    if (Object.defineProperty
+      && Object.getOwnPropertyDescriptor
+      && Object.getOwnPropertyDescriptor(Element.prototype, 'textContent')
+      && !Object.getOwnPropertyDescriptor(Element.prototype, 'textContent').get) {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, 'innerText');
+      Object.defineProperty(Element.prototype, 'textContent', {
+          get: function() {
+            return innerText.get.call(this);
+          },
+          set: function(s) {
+            return innerText.set.call(this, s);
+          }
+        }
+      );
+    }
 
     // A little internal data tracker
     var _data = (function() {
@@ -314,12 +328,7 @@
         init();
 
         // Return values
-        var obj = { sort: sort };
-        if (jQuery !== null) {
-            jQuery($table).data('mySortieInstance', obj);
-        }
-
-        return obj;
+        return { sort: sort };
     }
 
     // Create a new sortie instance
@@ -377,46 +386,9 @@
     });
 
     /**
-     * Attach functionality to the supplied jQuery object
-     */
-    function attachTojQuery(jq, method) {
-        // Default object to global jQuery
-        if (typeof jq === 'undefined') jq = window.jQuery;
-        // Default method to "sortie"
-        if (typeof method === 'undefined') method = 'sortie';
-
-        // Not valid jQuery object
-        if (typeof jq !== 'function' || typeof $().jquery !== 'string') {
-            console.error('Invalid jQuery object supplied');
-            return false;
-        }
-
-        // Scope jQuery to module
-        jQuery = jq;
-
-        // Add sortie to jQuery under the specified method
-        jq.fn[method] = function(options) {
-            var args = Array.prototype.slice.apply(arguments);
-
-            return $(this).each(function() {
-                if (typeof options === 'string') {
-                    var command = options;
-                    $(this).data('mySortieInstance')[command](args.slice(1));
-                } else {
-                    if (!$(this).data('mySortieInstance')) {
-                        var Sortie = new SortieConstructor();
-                        Sortie.create(this, options);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
      * Return public methods
      */
     return {
-        attachTojQuery: attachTojQuery,
         registerComparison: registerComparison,
         create: create
     };
