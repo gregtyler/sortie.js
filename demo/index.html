@@ -69,7 +69,6 @@
       </tr>
     </tbody>
   </table>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="../build/sortie.min.js"></script>
   <script>
     // Add a new sorting function
@@ -81,12 +80,6 @@
 
     // Either create it with natively
     Sortie.create(document.querySelector('table'), {
-      initialsort: 2
-    });
-
-    // Or use jQuery
-    Sortie.attachTojQuery($);
-    $('table').sortie({
       initialsort: 2
     });
   </script>
