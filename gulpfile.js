@@ -1,20 +1,21 @@
 // Load modules
-const gulp = require('gulp');
-const jscs = require('gulp-jscs');
-const rename = require('gulp-rename');
-const replace = require('gulp-replace');
-const sourcemaps  = require('gulp-sourcemaps');
-const uglify = require('gulp-uglify');
+var gulp = require('gulp');
+var eslint = require('gulp-eslint');
+var rename = require('gulp-rename');
+var replace = require('gulp-replace');
+var sourcemaps  = require('gulp-sourcemaps');
+var uglify = require('gulp-uglify');
 
 // Load data from package.json
 var pkg = require('./package.json');
 
 // The default build task
-gulp.task('default', function() {
+gulp.task('build', function() {
   return gulp.src('src/sortie.js')
     .pipe(sourcemaps.init())
-    .pipe(jscs()) //JSCS
-    .pipe(jscs.reporter())
+    .pipe(eslint()) //JSCS
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError())
     .pipe(replace('<<VERSION>>', pkg.version))
     .pipe(gulp.dest('build')) // Output file
     .pipe(uglify({outSourceMap: true, preserveComments: 'license'})) // Uglify
@@ -23,3 +24,9 @@ gulp.task('default', function() {
     .pipe(gulp.dest('build')) // Output minified
   ;
 });
+
+gulp.task('watch', function() {
+  return gulp.watch('src/sortie.js', ['build']);
+});
+
+gulp.task('default', ['build', 'watch']);

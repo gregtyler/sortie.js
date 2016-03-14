@@ -1,0 +1,40 @@
+{
+  "rules": {
+    "space-before-function-paren": [2, "never"],
+    "no-empty": 2,
+    "array-bracket-spacing": [2, "never", {
+      "singleValue": false
+    }],
+    "space-in-parens": [2, "never"],
+    "quote-props": [2, "as-needed"],
+    "key-spacing": [2, {
+      "beforeColon": false,
+      "afterColon": true
+    }],
+    "space-unary-ops": [2, {
+      "words": false,
+      "nonwords": false
+    }],
+    "no-mixed-spaces-and-tabs": 2,
+    "no-trailing-spaces": 2,
+    "comma-dangle": [2, "never"],
+    "yoda": [2, "never"],
+    "no-with": 2,
+    "no-multiple-empty-lines": 2,
+    "one-var": [2, "never"],
+    "space-before-blocks": [2, "always"],
+    "wrap-iife": 2,
+    "comma-style": [2, "last"],
+    "space-infix-ops": 2,
+    "camelcase": [2, {
+      "properties": "never"
+    }],
+    "eol-last": 2,
+    "new-cap": 2,
+    "dot-notation": 2,
+    "curly": [2, "multi-line"],
+    "consistent-this": [2, "_this"],
+    "linebreak-style": [2, "unix"],
+    "quotes": [2, "single"]
+  }
+}
