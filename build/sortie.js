@@ -31,6 +31,23 @@
 
     var compareFunctions = {};
 
+    // A polyfill for textContent
+    if (Object.defineProperty
+      && Object.getOwnPropertyDescriptor
+      && Object.getOwnPropertyDescriptor(Element.prototype, 'textContent')
+      && !Object.getOwnPropertyDescriptor(Element.prototype, 'textContent').get) {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, 'innerText');
+      Object.defineProperty(Element.prototype, 'textContent', {
+          get: function() {
+            return innerText.get.call(this);
+          },
+          set: function(s) {
+            return innerText.set.call(this, s);
+          }
+        }
+      );
+    }
+
     /**
      * Reverse a string
      */
@@ -63,7 +80,7 @@
      * Get the text content of a node
      */
     function textContent(node) {
-        return node.textContent || $(node).text();
+        return node.textContent;
     }
 
     function SortieInstance(el, options) {
@@ -130,7 +147,7 @@
                    'aria-controls': $table.attr('id')
                 });
                 $headers.eq(col)
-                    .css({whiteSpace:'nowrap', cursor:'pointer'})
+                    .css({whiteSpace: 'nowrap', cursor: 'pointer'})
                     .click(sortFactory(col))
                     .data({
                         sortie: true,
