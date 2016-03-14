@@ -86,8 +86,9 @@
 
     // Events that can be called/listened to
     var events = {
-      // This can be fired to sort the table
-      sort: new CustomEvent('sortie:sort'),
+      // These can be fired to sort the table
+      sortAsc: new CustomEvent('sortie:sortAsc'),
+      sortDesc: new CustomEvent('sortie:sortDesc'),
       // This is fired after the table is sorted
       afterSorted: new CustomEvent('sortie:afterSorted')
     };
@@ -244,10 +245,9 @@
                 $button.setAttribute('aria-controls', $table.getAttribute('id'));
 
                 var $header = $headers[col];
-                var sortFunction = sortFactory(col);
                 $header.style.whiteSpace = 'nowrap';
                 $header.style.cursor = 'pointer';
-                $header.addEventListener('click', sortFunction);
+                $header.addEventListener('click', sortFactory(col));
                 $header.setAttribute('data-sortie', true);
                 _data.set($header, 'sortieCompareFunction', compareFactory(col, sorts[col]));
                 _data.set($header, 'sortieButton', $button);
@@ -255,7 +255,8 @@
                 $header.appendChild($button);
 
                 // When the table is asked to be filtered, filter it
-                $header.addEventListener('sortie:sort', sortFunction);
+                $header.addEventListener('sortie:sortAsc', sortFactory(col, {dir: 'ASC'}));
+                $header.addEventListener('sortie:sortDesc', sortFactory(col, {dir: 'DESC'}));
             }
 
             // Perform an initial sort
@@ -279,9 +280,9 @@
         }
 
         // Factory for the sort function
-        function sortFactory(col) {
+        function sortFactory(col, opts) {
             return function() {
-                sort(col);
+                sort(col, opts);
             }
         }
 
