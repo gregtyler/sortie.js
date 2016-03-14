@@ -1,5 +1,7 @@
 # Sortie.js
 
+[![Build Status](https://travis-ci.org/gregtyler/sortie.js.svg?branch=master)](https://travis-ci.org/gregtyler/sortie.js)
+
 An inoffensive table sorter for developers. Great features, no dependencies, no nonsense.
 
 ## Usage
