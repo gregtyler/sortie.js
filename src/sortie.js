@@ -380,14 +380,14 @@
     });
 
     // Compare by date attributes
-    registerComparison(['d', 'date'], function compareData(cellA, cellB, args) {
+    registerComparison(['d', 'date'], function compareDate(cellA, cellB, args) {
         var dateFormat = args[0];
         var dateA = parseDate(textContent(cellA), dateFormat);
         var dateB = parseDate(textContent(cellB), dateFormat);
 
         if (dateA > dateB) {
             return 1;
-        } else if (dateB < dateA) {
+        } else if (dateA < dateB) {
             return -1;
         } else {
             return 0;
