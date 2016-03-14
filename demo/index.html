@@ -71,6 +71,8 @@
   </table>
   <script src="../build/sortie.min.js"></script>
   <script>
+    var $table = document.querySelector('table');
+
     // Add a new sorting function
     Sortie.registerComparison(['data'], function(cellA, cellB, args) {
       var ad = cellA.getAttribute(args[0]) || '';
@@ -78,10 +80,18 @@
       return ad.localeCompare(bd);
     });
 
-    // Either create it with natively
-    Sortie.create(document.querySelector('table'), {
+    // You can listen for filtering events
+    $table.addEventListener('sortie:afterSorted', function() {
+      console.log('The table was just sorted');
+    });
+
+    // Apply Sortie to the table
+    Sortie.create($table, {
       initialsort: 2
     });
+
+    // And you can trigger events to filter the table manually
+    document.querySelector('table > thead > tr > th:nth-child(4)').dispatchEvent(Sortie.events.sort);
   </script>
 </body>
 </html>

@@ -70,6 +70,28 @@
       );
     }
 
+    // A polyfill for CustomEvent
+    function polyfillCustomEvent(event, params) {
+      params = params || { bubbles: false, cancelable: false, detail: undefined };
+      var evt = document.createEvent('CustomEvent');
+      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+      return evt;
+    }
+
+    if (typeof window.CustomEvent === 'function') {
+      polyfillCustomEvent.prototype = window.Event.prototype;
+
+      window.CustomEvent = polyfillCustomEvent;
+    }
+
+    // Events that can be called/listened to
+    var events = {
+      // This can be fired to sort the table
+      sort: new CustomEvent('sortie:sort'),
+      // This is fired after the table is sorted
+      afterSorted: new CustomEvent('sortie:afterSorted')
+    };
+
     // A little internal data tracker
     var _data = (function() {
         var data = [];
@@ -222,15 +244,18 @@
                 $button.setAttribute('aria-controls', $table.getAttribute('id'));
 
                 var $header = $headers[col];
+                var sortFunction = sortFactory(col);
                 $header.style.whiteSpace = 'nowrap';
                 $header.style.cursor = 'pointer';
-                $header.addEventListener('click', sortFactory(col));
+                $header.addEventListener('click', sortFunction);
                 $header.setAttribute('data-sortie', true);
                 _data.set($header, 'sortieCompareFunction', compareFactory(col, sorts[col]));
-                //$header.setAttribute('data-sortieButton', $button);
                 _data.set($header, 'sortieButton', $button);
                 $header.appendChild(document.createTextNode(' '));
                 $header.appendChild($button);
+
+                // When the table is asked to be filtered, filter it
+                $header.addEventListener('sortie:sort', sortFunction);
             }
 
             // Perform an initial sort
@@ -296,7 +321,6 @@
             }
 
             // Update the other buttons
-            //$headers.not($th).each(function(index, el) {
             for (var i = 0, l = $headers.length; i < l; i++) {
                 var $el = $headers[i];
                 // Only update "other" buttons
@@ -315,6 +339,9 @@
             for (var i in rows) {
                 frag.appendChild(rows[i]);
             }
+
+            // Fire an event to notify that the table was sorted
+            $table.dispatchEvent(events.afterSorted);
 
             // Put the now sorted rows back onto the page
             $body.innerHTML = '';
@@ -411,7 +438,8 @@
      * Return public methods
      */
     return {
-        registerComparison: registerComparison,
-        create: create
+        create: create,
+        events: events,
+        registerComparison: registerComparison
     };
 }));
