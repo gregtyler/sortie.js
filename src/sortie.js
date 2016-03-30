@@ -226,6 +226,14 @@
             $table.setAttribute('aria-live', 'polite');
             $table.setAttribute('aria-relevant', 'all');
 
+            // Set ARIA roles
+            $table.setAttribute('role', 'grid');
+            $table.querySelector('thead').setAttribute('role', 'rowgroup');
+            var $rows = $table.querySelectorAll('thead > tr');
+            for (var i = 0, l = $rows.length; i < l; i++) {
+              $rows[i].setAttribute('role', 'row');
+            }
+
             // Generate an ID for the table
             if (!$table.getAttribute('id')) {
                 $table.setAttribute('id', 'sortieTable' + (new Date() * 1));
@@ -249,6 +257,7 @@
                 $header.style.cursor = 'pointer';
                 $header.addEventListener('click', sortFactory(col));
                 $header.setAttribute('data-sortie', true);
+                $header.setAttribute('role', 'columnheader');
                 _data.set($header, 'sortieCompareFunction', compareFactory(col, sorts[col]));
                 _data.set($header, 'sortieButton', $button);
                 $header.appendChild(document.createTextNode(' '));
