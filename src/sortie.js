@@ -78,9 +78,9 @@
       return evt;
     }
 
+    // Detect if CustomEvent is supported natively
     try {
       new CustomEvent('test');
-    // Detect if CustomEvent is supported natively
     } catch(e) {
       polyfillCustomEvent.prototype = window.Event.prototype;
 

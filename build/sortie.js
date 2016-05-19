@@ -78,6 +78,7 @@
       return evt;
     }
 
+    // Detect if CustomEvent is supported natively
     try {
       new CustomEvent('test');
     } catch(e) {
