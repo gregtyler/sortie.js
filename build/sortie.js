@@ -78,7 +78,10 @@
       return evt;
     }
 
-    if (typeof window.CustomEvent === 'function') {
+    try {
+      new CustomEvent('test');
+      return;
+    } catch(e) {
       polyfillCustomEvent.prototype = window.Event.prototype;
 
       window.CustomEvent = polyfillCustomEvent;
