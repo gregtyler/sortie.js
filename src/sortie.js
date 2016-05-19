@@ -80,7 +80,7 @@
 
     try {
       new CustomEvent('test');
-      return;
+    // Detect if CustomEvent is supported natively
     } catch(e) {
       polyfillCustomEvent.prototype = window.Event.prototype;
 

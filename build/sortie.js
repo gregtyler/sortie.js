@@ -80,7 +80,6 @@
 
     try {
       new CustomEvent('test');
-      return;
     } catch(e) {
       polyfillCustomEvent.prototype = window.Event.prototype;
 
