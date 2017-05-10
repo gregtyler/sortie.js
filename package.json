@@ -1,7 +1,7 @@
 {
   "name": "sortie.js",
   "description": "An inoffensive table sorter for developers",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Greg Tyler <Greg.Tyler@ed.ac.uk>",
   "bugs": "https://github.com/gregtyler/sortie.js/issues",
   "devDependencies": {
