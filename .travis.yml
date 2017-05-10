@@ -3,5 +3,5 @@ node_js:
   - 5.7
 notifications:
   slack: juerga:uJyqvdPUBa0a9KbrAscBwLlR
-    on_success: always
-    on_failure: always
+  on_success: always
+  on_failure: always
