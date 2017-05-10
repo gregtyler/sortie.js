@@ -353,12 +353,12 @@
                 frag.appendChild(rows[i]);
             }
 
-            // Fire an event to notify that the table was sorted
-            $table.dispatchEvent(events.afterSorted);
-
             // Put the now sorted rows back onto the page
             $body.innerHTML = '';
             $body.appendChild(frag);
+
+            // Fire an event to notify that the table was sorted
+            $table.dispatchEvent(events.afterSorted);
         }
 
         /**
