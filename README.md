@@ -30,7 +30,7 @@ Sortie is initialised with the `Sortie.create` function. This can take a second 
 
 | Option | Default value | Data attribute | Notes |
 | ------ | ------------- | -------------- | ----- |
-| `sort` | _none_ | `data-sortie` | A pipe-separated list of how to save each column. e.g. `a|i|d:dd/mm/yyyy` will sort the first column alphabetically, the second as integers and the third as dates in the format `dd/mm/yyyy`. For more information about comparison functions and how to add your own, see [Comparison functions](#Comparison functions) below. |
+| `sort` | _none_ | `data-sortie` | A pipe-separated list of how to save each column. e.g. `a\|i\|d:dd/mm/yyyy` will sort the first column alphabetically, the second as integers and the third as dates in the format `dd/mm/yyyy`. For more information about comparison functions and how to add your own, see [Comparison functions](#comparison-functions) below. |
 | `initialsort` | _none_ | `data-sortie-initialsort` | The [0-indexed](https://en.wikipedia.org/wiki/Zero-based_numbering) column to sort by after Sortie has initalised. Sorts ascending by default, append 'D' to sort descending. (e.g. `5D`) |
 | `marks` | `{asc: '&#8595;', desc: '&#8593;', unsorted: '&#8597;'}` | | The markers to use to demonstrate how each column is sorted to the user. These accept HTML so can be SVG icons, font icons or images. |
 
@@ -55,7 +55,7 @@ th.dispatchEvent('sortie:sortAsc'); // Sorts table by "name" column, from A-Z
 ```
 
 ## Comparison functions
-There are three default comparison functions included in Sortie. These are specified in the `data-sortie` attribute or the `sort` initialisation parameter (see [Initialisation](#Initialisation) above) for each column.
+There are three default comparison functions included in Sortie. These are specified in the `data-sortie` attribute or the `sort` initialisation parameter (see [Initialisation](#initialisation) above) for each column.
 
 `a` or `alpha` sorts the column alphabetically. Internally, the [`localeCompare`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare) function is used for comparison. Only text content inside the table cell is used, not HTML content. This is done using the element's [`textContent`](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) property.
 
